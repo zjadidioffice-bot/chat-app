@@ -6,5 +6,4 @@ const authMiddleware=require("../middleware/authMiddleware")
 const router=express.Router();
 router.post("/",authMiddleware,sendMessage);
 router.get("/:userId",authMiddleware,getMessages);
-
 module.exports=router;

@@ -1,51 +1,52 @@
-const Message=require("../models/Message");
+const Message = require("../models/Message");
 
-const sendMessage=async(req,res)=>{
+const sendMessage = async (req, res) => {
     try {
-        const {reciver,message}=req.body;
-        const newMessage=await Message.create({
-            sender:req.userId,
+        const { reciver, message } = req.body;
+        const newMessage = await Message.create({
+            sender: req.userId,
             reciver,
             message
         });
 
         res.status(201).json({
-            message:"message sent successfully",
-            data:newMessage
+            message: "message sent successfully",
+            data: newMessage
         });
     } catch (error) {
         res.status(500).json({
-            message:"error sending message"
+            message: "error sending message"
         });
     }
 };
 
-const getMessages=async (req,res)=>{
+const getMessages = async (req, res) => {
     try {
-        const {userId}=req.params;
-        const messages=await Message.find({
-            $or:[
+        const { userId } = req.params;
+        const messages = await Message.find({
+            $or: [
                 {
-                    sender:req.userId,
-                    reciver:userId
+                    sender: req.userId,
+                    reciver: userId
                 }
                 ,
                 {
-sender:userId,
-reciver:req.userId
+                    sender: userId,
+                    reciver: req.userId
                 }
             ]
-        }).sort({createdAt:1});
+        }).sort({ createdAt: 1 });
         res.json(messages);
     } catch (error) {
         res.status(500).json({
-            message:"error geting message",
-            error:error.message
+            message: "error geting message",
+            error: error.message
         });
     }
 };
 
-module.exports={
+module.exports = {
     sendMessage,
-    getMessages
+    getMessages,
+    
 }
