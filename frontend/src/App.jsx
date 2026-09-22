@@ -6,6 +6,7 @@ function App(){
   const[users,setUsers]=useState([]);
   const [selectedUser,setSelectedUser]=useState(null);
   const[messages,setMessages]=useState([]);
+  const [messageText,setMessageText]=useState("");
   const getUsers=async()=>{
     const token=localStorage.getItem("token");
 
@@ -78,6 +79,44 @@ function App(){
     setSelectedUser(user);
     getMessages(user._id)
   }
+
+  const sendMessage=async(e)=>{
+    e.preventDefault();
+    if(!messageText.trim() || !selectedUser){
+      return;
+    }
+    const token=localStorage.getItem("token");
+    const response=await fetch(
+      "http://localhost:3000/api/messages",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          Authorization:`Bearer ${token}`
+        },
+        body:JSON.stringify({
+          reciver:selectedUser._id,
+          message:messageText
+        })
+      }
+    );
+  const data=await response.json();
+  if(response.ok){
+    setMessages([...messages,data.data]);
+    setMessageText("");
+  }else{
+    console.log(data.message);
+  }
+  };
+
+  const handleLogout=()=>{
+    localStorage.removeItem("token");
+
+    setUsers([])
+    setMessages([]);
+    setSelectedUser(null)
+  };
+
   return(
     <div>
       <h1>login</h1>
@@ -96,7 +135,7 @@ function App(){
         />
         <button type="submit">login</button>
       </form>
-
+      <button onClick={handleLogout}>logout</button>
       <h2>users</h2>
       {
         users.map((user)=>(
@@ -118,6 +157,16 @@ function App(){
             <p>{message.message}</p>
           </div>
         ))}
+
+        <form onSubmit={sendMessage}>
+          <input
+          type="text"
+          placeholder="write a message..."
+          value={messageText}
+          onChange={(e)=>setMessageText(e.target.value)}
+          />
+          <button type="submit">send</button>
+        </form>
         </div>
       }
     </div>
