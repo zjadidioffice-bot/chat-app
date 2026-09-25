@@ -1,4 +1,4 @@
-.counter {
+/* .counter {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
@@ -181,4 +181,177 @@
     right: 0;
     border-right-color: var(--border);
   }
+} */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* Login */
+
+.login-container {
+    width: 350px;
+    margin: 100px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+}
+
+.login-container h1 {
+    text-align: center;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.login-container input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.login-container button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #333;
+    color: white;
+}
+
+/* Chat */
+
+.chat-container {
+    width: 900px;
+    height: 600px;
+    margin: 50px auto;
+    display: flex;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Users */
+
+.users-section {
+    width: 30%;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.users-section h2 {
+    margin-top: 0;
+}
+
+.user {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.user:hover {
+    background: #f2f2f2;
+}
+
+/* Chat */
+
+.chat-section {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.chat-header {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.chat-header h2 {
+    margin: 0;
+}
+
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.message {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f2f2f2;
+    border-radius: 6px;
+}
+
+.message-form {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.message-form input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px 0 0 6px;
+}
+
+.message-form button {
+    padding: 12px 20px;
+    border: none;
+    background: #333;
+    color: white;
+    border-radius: 0 6px 6px 0;
+}
+
+.logout-button {
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #333;
+    color: white;
+}
+.my-message {
+    margin-left: auto;
+    background: #333;
+    color: white;
+    width: fit-content;
+    max-width: 70%;
+}
+
+.other-message {
+    margin-right: auto;
+    background: #f2f2f2;
+    color: #333;
+    width: fit-content;
+    max-width: 70%;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 15px;
+}
+
+.message-form {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
 }

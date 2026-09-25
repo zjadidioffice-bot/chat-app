@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import "./App.css"
 
 function App() {
   const [email, setEmail] = useState("");
@@ -7,9 +8,19 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
+  const [name, setName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
+  const messageEndRef = useRef(null);
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({
+      behavior: "smooth"
+    });
+  }, [messages]);
   const getUsers = async () => {
     const token = localStorage.getItem("token");
 
@@ -31,6 +42,38 @@ function App() {
     }
   };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const response = await fetch(
+      "http://localhost:3000/api/users/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email: registerEmail,
+          password: registerPassword
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("register successfull");
+      setName("");
+      setRegisterEmail("");
+      setRegisterPassword("");
+
+      setShowRegister(false);
+    }
+    else {
+      console.log(data.message)
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -49,6 +92,7 @@ function App() {
     const data = await response.json();
     if (response.ok) {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user._id)
       setIsLoggedIn(true);
       console.log("login successfull")
       getUsers();
@@ -115,6 +159,8 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+
     setIsLoggedIn(false);
     setUsers([])
     setMessages([]);
@@ -122,34 +168,59 @@ function App() {
   };
 
   return (
-    <div>
-      {!isLoggedIn ? (
-        <div>
-          <h1>login</h1>
-          <form onSubmit={handleLogin}>
+    !isLoggedIn ? (
+      showRegister ? (
+        <div className="login-container">
+          <h1>Register</h1>
+          <form onSubmit={handleRegister}>
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <input
               type="email"
               placeholder="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
             />
             <input
               type="password"
               placeholder="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
             />
-            <button type="submit">login</button>
+            <button type="submit">register</button>
+            <button onClick={() => setShowRegister(false)}>
+              back to login
+            </button>
           </form>
         </div>
       ) : (
-        <div>
-          <button onClick={handleLogout}>logout</button>
+        <div className="login-container">
+          <h1>login</h1>
+          <form onSubmit={handleLogin}>
+            <input type="email" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            />
+            <input type="password" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="submit">login</button>
+          </form>
+
+          <button onClick={() => setShowRegister(true)}>
+            craete acount
+          </button>
+        </div>
+      )
+      ): (
+      <div className="chat-container">
+        <div className="users-section">
+          <button className="logout-button" onClick={handleLogout}>logout</button>
           <h2>users</h2>
           {
             users.map((user) => (
-              <div key={user._id}
-                onClick={() => handleSelectUser(user)}
+              <div className="user" key={user._id} onClick={() => handleSelectUser(user)}
                 style={{ cursor: "pointer" }}
               >
                 <p>{user.name}</p>
@@ -157,33 +228,44 @@ function App() {
               </div>
             ))
           }
-
-          {selectedUser &&
-            <div>
-              <h2>chat with {selectedUser.name}</h2>
-              {messages.map((message) => (
-                <div key={message._id}>
-                  <p>{message.message}</p>
-                </div>
-              ))}
-
-              <form onSubmit={sendMessage}>
-                <input
-                  type="text"
-                  placeholder="write a message..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                />
-                <button type="submit">send</button>
-              </form>
-            </div>
-          }
         </div>
 
+        <div className="chat-section">
+          {selectedUser ?
+            (
+              <>
+                <div className="chat-header">
+                  <h2>chat with {selectedUser.name}</h2>
+                </div>
+                <div className="messages-container">
+                  {messages.map((message) => (
+                    <div className={String(message.sender) === localStorage.getItem("userId") ? "message my-message"
+                      : "message other-message"} key={message._id}>
+                      <p>{message.message}</p>
+                    </div>
+                  ))}
+
+                  <div ref={messageEndRef}></div>
+                </div>
+
+                <form className="message-form" onSubmit={sendMessage}>
+                  <input type="text" placeholder="write a message..." value={messageText} onChange={(e) =>
+                    setMessageText(e.target.value)}
+                  />
+                  <button type="submit">send</button>
+                </form>
+              </>
+            ) : (
+              <div className="chat-header">
+                <h2>select a user to start chatting</h2>
+              </div>
+            )
+
+          }
+        </div>
+      </div>
       )
-      }
-    </div>
-  );
+    );
 }
 
 export default App;
