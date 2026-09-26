@@ -46,6 +46,7 @@ const loginUser=async(req,res)=>{
             process.env.JWT_SECRET,
             {expiresIn:"1d"}
         );
+        user.password=undefined;
         res.json({
             message:"login successfully",
             token,

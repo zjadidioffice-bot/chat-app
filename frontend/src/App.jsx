@@ -13,6 +13,7 @@ function App() {
   const [registerPassword, setRegisterPassword] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const messageEndRef = useRef(null);
+  const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
@@ -38,12 +39,23 @@ function App() {
       setUsers(data);
     }
     else {
-      console.log(data.message);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      setIsLoggedIn(false);
+      setUsers([]);
+      setError(data.message)
     }
   };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      getUsers();
+    }
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
     const response = await fetch(
       "http://localhost:3000/api/users/register",
       {
@@ -62,7 +74,6 @@ function App() {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("register successfull");
       setName("");
       setRegisterEmail("");
       setRegisterPassword("");
@@ -70,13 +81,13 @@ function App() {
       setShowRegister(false);
     }
     else {
-      console.log(data.message)
+      setError(data.message)
     }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    setError("");
     const response = await fetch(
       "http://localhost:3000/api/users/login", {
       method: "POST",
@@ -94,11 +105,10 @@ function App() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user._id)
       setIsLoggedIn(true);
-      console.log("login successfull")
       getUsers();
     }
     else {
-      console.log(data.message);
+      setError(data.message);
     }
   };
 
@@ -125,6 +135,7 @@ function App() {
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);
+    setMessages([]);
     getMessages(user._id)
   }
 
@@ -191,6 +202,10 @@ function App() {
               value={registerPassword}
               onChange={(e) => setRegisterPassword(e.target.value)}
             />
+            {error && (
+              <p className="error-message">{error}</p>
+            )
+            }
             <button type="submit">register</button>
             <button onClick={() => setShowRegister(false)}>
               back to login
@@ -205,21 +220,28 @@ function App() {
             />
             <input type="password" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)}
             />
+            {error && (
+              <p className="error-message">{error}</p>
+            )
+            }
             <button type="submit">login</button>
           </form>
-
-          <button onClick={() => setShowRegister(true)}>
-            craete acount
+            <div className="create-btn">
+          <button onClick={() => setShowRegister(true)} >
+            create acount
           </button>
+            </div>
+
         </div>
       )
-      ): (
+    ) : (
       <div className="chat-container">
         <div className="users-section">
           <button className="logout-button" onClick={handleLogout}>logout</button>
           <h2>users</h2>
           {
-            users.map((user) => (
+            users.filter((user)=>user._id !== localStorage.getItem("userId"))
+            .map((user) => (
               <div className="user" key={user._id} onClick={() => handleSelectUser(user)}
                 style={{ cursor: "pointer" }}
               >
@@ -236,14 +258,35 @@ function App() {
               <>
                 <div className="chat-header">
                   <h2>chat with {selectedUser.name}</h2>
+                  <small>{selectedUser.email}</small>
                 </div>
                 <div className="messages-container">
-                  {messages.map((message) => (
-                    <div className={String(message.sender) === localStorage.getItem("userId") ? "message my-message"
-                      : "message other-message"} key={message._id}>
-                      <p>{message.message}</p>
-                    </div>
-                  ))}
+                  {messages.map((message) => {
+                    const sender = users.find(
+                      (user) => user._id === message.sender
+                    );
+
+                    return (
+                      <div
+                        className={
+                          String(message.sender) === localStorage.getItem("userId")
+                            ? "message my-message"
+                            : "message other-message"
+                        }
+                        key={message._id}
+                      >
+                        <strong>
+                          {sender ? sender.name : "Unknown"}
+                        </strong>
+
+                        <p>{message.message}</p>
+
+                        <small>
+                          {new Date(message.createdAt).toLocaleString()}
+                        </small>
+                      </div>
+                    );
+                  })}
 
                   <div ref={messageEndRef}></div>
                 </div>
@@ -264,8 +307,8 @@ function App() {
           }
         </div>
       </div>
-      )
-    );
+    )
+  );
 }
 
 export default App;

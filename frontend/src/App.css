@@ -292,10 +292,11 @@ button {
 }
 
 .message {
-    margin-bottom: 10px;
-    padding: 10px;
-    background: #f2f2f2;
-    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    max-width: 70%;
+    word-wrap: break-word;
 }
 
 .message-form {
@@ -331,16 +332,12 @@ button {
     margin-left: auto;
     background: #333;
     color: white;
-    width: fit-content;
-    max-width: 70%;
 }
 
 .other-message {
     margin-right: auto;
     background: #f2f2f2;
     color: #333;
-    width: fit-content;
-    max-width: 70%;
 }
 
 .messages-container {
@@ -354,4 +351,27 @@ button {
     display: flex;
     padding: 15px;
     border-top: 1px solid #ddd;
+}
+.error-message {
+    margin: 0;
+    padding: 10px;
+    background: #ffe5e5;
+    color: #c00;
+    border-radius: 6px;
+    text-align: center;
+}
+.message small {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    opacity: 0.7;
+    text-align: right;
+}
+.chat-header small {
+    display: block;
+    margin-top: 5px;
+    color: #777;
+}
+.create-btn{
+  margin-top: 15px;
 }
